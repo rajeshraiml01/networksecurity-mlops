@@ -25,13 +25,15 @@ from sklearn.ensemble import (
 )
 import mlflow
 from urllib.parse import urlparse
+import pdb
 
 import dagshub
 #dagshub.init(repo_owner='krishnaik06', repo_name='networksecurity', mlflow=True)
 
-os.environ["MLFLOW_TRACKING_URI"]="https://dagshub.com/krishnaik06/networksecurity.mlflow"
-os.environ["MLFLOW_TRACKING_USERNAME"]="krishnaik06"
-os.environ["MLFLOW_TRACKING_PASSWORD"]="7104284f1bb44ece21e0e2adb4e36a250ae3251f"
+
+os.environ["MLFLOW_TRACKING_URI"]="https://dagshub.com/rajeshraiml/networksecurity-mlops.mlflow"
+os.environ["MLFLOW_TRACKING_USERNAME"]="rajeshraiml"
+os.environ["MLFLOW_TRACKING_PASSWORD"]="092c29d1d552b7767197b327066d647e382c636d"
 
 
 
@@ -46,7 +48,7 @@ class ModelTrainer:
             raise NetworkSecurityException(e,sys)
         
     def track_mlflow(self,best_model,classificationmetric):
-        mlflow.set_registry_uri("https://dagshub.com/krishnaik06/networksecurity.mlflow")
+        mlflow.set_registry_uri("https://dagshub.com/rajeshraiml/networksecurity-mlops.mlflow")
         tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
         with mlflow.start_run():
             f1_score=classificationmetric.f1_score
@@ -58,15 +60,16 @@ class ModelTrainer:
             mlflow.log_metric("f1_score",f1_score)
             mlflow.log_metric("precision",precision_score)
             mlflow.log_metric("recall_score",recall_score)
-            mlflow.sklearn.log_model(best_model,"model")
+            mlflow.sklearn.log_model(best_model,"model")            
             # Model registry does not work with file store
+            pdb.set_trace()
             if tracking_url_type_store != "file":
 
                 # Register the model
                 # There are other ways to use the Model Registry, which depends on the use case,
                 # please refer to the doc for more information:
                 # https://mlflow.org/docs/latest/model-registry.html#api-workflow
-                mlflow.sklearn.log_model(best_model, "model", registered_model_name=best_model)
+                mlflow.sklearn.log_model(best_model, "model", registered_model_name=best_model.__class__.__name__)
             else:
                 mlflow.sklearn.log_model(best_model, "model")
 
@@ -74,11 +77,11 @@ class ModelTrainer:
         
     def train_model(self,X_train,y_train,x_test,y_test):
         models = {
-                "Random Forest": RandomForestClassifier(verbose=1),
-                "Decision Tree": DecisionTreeClassifier(),
-                "Gradient Boosting": GradientBoostingClassifier(verbose=1),
+                #"Random Forest": RandomForestClassifier(verbose=1),
+                #"Decision Tree": DecisionTreeClassifier(),
+                #"Gradient Boosting": GradientBoostingClassifier(verbose=1),
                 "Logistic Regression": LogisticRegression(verbose=1),
-                "AdaBoost": AdaBoostClassifier(),
+                #"AdaBoost": AdaBoostClassifier(),
             }
         params={
             "Decision Tree": {
@@ -107,6 +110,7 @@ class ModelTrainer:
             }
             
         }
+        pdb.set_trace()
         model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=x_test,y_test=y_test,
                                           models=models,param=params)
         
